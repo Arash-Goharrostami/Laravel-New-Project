@@ -12,7 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            // id
+            $table->id("id");
+            // bigInteger
+            $table->bigInteger("price"    )->unsigned()->nullable();
+            $table->bigInteger("number_of")->unsigned()->nullable();
+            // string
+            $table->string("sku"         , 50)->nullable();
+            $table->string("mpn"         , 50)->nullable();
+            $table->string("type"        , 50)->nullable();
+            $table->string("product_name", 70);
+            // enum
+            $table->enum('quantity', ['PCS', 'PCK', 'CTN']);
+            // timestamps
             $table->timestamps();
         });
     }

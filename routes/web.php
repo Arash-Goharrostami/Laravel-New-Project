@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -17,4 +18,5 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () { return view('welcome')});
 
-Route::get("/hello-world", [OrderController::class, "index"])->name("hello-world");
+Route::get("/dashboard/orders", [OrderController::class  , "index" ])->name("index" );
+Route::post("/product/search" , [ProductController::class, "search"])->name("search");

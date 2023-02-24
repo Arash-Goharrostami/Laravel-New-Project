@@ -5,6 +5,9 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+use App\Models\Product;
+
+
 class ProductSeeder extends Seeder
 {
     /**
@@ -12,6 +15,9 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Product::truncate();
+        Product::factory(100)->create()->each(function($product) {
+            echo "Product #" . $product->id . "\n\r";
+        });
     }
 }

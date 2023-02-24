@@ -15,15 +15,11 @@ return new class extends Migration
             // id
             $table->id("id");
             // bigInteger
-            $table->bigInteger("price"   )->unsigned()->nullable();
-            $table->bigInteger("numberOf")->unsigned()->nullable();
-            // string
-            $table->string("sku"        , 50)->nullable()->unique();
-            $table->string("mpn"        , 50)->nullable()->unique();
-            $table->string("type"       , 50)->nullable();
-            $table->string("productName", 70);
+            $table->bigInteger("order_number"   )->unsigned()->nullable();
+            $table->bigInteger("sum_of_price"   )->unsigned()->nullable();
+            $table->bigInteger("sum_of_products")->unsigned()->nullable();
             // enum
-            $table->enum('quantity', ['PCS', 'PCK', 'CTN']);
+            $table->enum('status', ['step_1', 'step_2', 'step_3', 'step_4', 'step_5']);
             // timestamps
             $table->timestamps();
         });
