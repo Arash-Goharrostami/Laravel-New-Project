@@ -209,11 +209,119 @@
             url:'/product/search',
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             data:{"value" : value},
-            success:function(data){
-                alert('success!'+ data);
+            success:function(response){
+                $('#search-input-product-data-list').html(response);
+                console.log(response)
             }
         });
     });
+
+    $('#search-input-product-data-list').on('click', '.select-product-on-click', function() {
+        let id = $(this).attr("data-value")
+        $.ajax({
+            type:'GET',
+            url:'/product/' + id,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success:function(response){
+                $('#wrap-selected-porducts').prepend(response);
+            }
+        });
+    });
+
+    $("#create-new-product").on("click", function() {
+
+        var sku = $("#create-product-form :input[name='sku']").val();
+        var mpn = $("#create-product-form :input[name='mpn']").val();
+        var type = $("#create-product-form :input[name='type']").val();
+        var name = $("#create-product-form :input[name='name']").val();
+        var price = $("#create-product-form :input[name='price']").val();
+        var quantity = $("#create-product-form :input[name='quantity']").val();
+
+        $.ajax({
+            type:'POST',
+            url:'/product/create',
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            data:{
+                "sku" : sku,
+                "mpn" : mpn,
+                "type" : type,
+                "name" : name,
+                "price" : price,
+                "quantity" : quantity,
+            },
+            success:function(id){
+                $.ajax({
+                    type:'GET',
+                    url:'/product/' + id,
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    success:function(response){
+                        $('#wrap-selected-porducts').prepend(response);
+                    }
+                });
+                $('#create-new-product-modal').modal('toggle');
+            }
+        });
+
+    })
+
+    $("#create-new-order").on("click", function() {
+        let name = $("#create-new-order-form :input[name='name']").val();
+        let sku = $("#create-new-order-form :input[name='sku']").val();
+        let array = []
+
+        $('#show-selected-product-table tbody tr').each(function() {
+            var id = $(this).find(".product-id-td").html();
+            var quantity = $(this).find(".quantity").val();
+            array.push([id, quantity]);
+        });
+
+        $.ajax({
+            type:'POST',
+            url:'/order/create',
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            data:{
+                "sku" : sku,
+                "name" : name,
+                "array" : array,
+            },
+            success:function(id){
+                $.ajax({
+                    type:'GET',
+                    url:'/order/' + id,
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    success:function(response){
+                        console.log(response)
+                        $('#order-wraper-content').prepend(wrapOrder(response));
+                    }
+                });
+                $('#create-new-order-modal').modal('toggle');
+            }
+        });
+    })
+
+    function wrapOrder(data) {
+        let value = data[0]
+        let output = "";
+        output += "<tr>";
+        output += "<td class='text-center'>"+value.id+"</td>";
+        output += "<td>"+value.name+"</td>";
+        output += "<td>"+value.sku+"</td>";
+        output += "<td>2013</td>";
+        output += "<td class='text-right'>&euro; "+value.price+"</td>";
+        output += "<td class='td-actions text-right'>";
+        output += "<button type='button' rel='tooltip' class='btn btn-info'>";
+        output += "<i class='material-icons'>person</i>";
+        output += "</button>";
+        output += "<button type='button' rel='tooltip' class='btn btn-success'>";
+        output += "<i class='material-icons'>edit</i>";
+        output += "</button>";
+        output += "<button type='button' rel='tooltip' class='btn btn-danger'>";
+        output += "<i class='material-icons'>close</i>";
+        output += "</button>";
+        output += "</td>";
+        output += "</tr>";
+        return output;
+    }
 
   });
 </script>

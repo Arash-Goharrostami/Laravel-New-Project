@@ -16,4 +16,10 @@ class Order extends Model
         "orderNumber",
         "sumOfProducts",
     ];
+
+    public function products()
+    {
+        return $this->hasMany(Orderables::class, "order_id", "id");
+    }
+
 }

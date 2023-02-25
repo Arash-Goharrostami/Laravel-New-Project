@@ -19,13 +19,12 @@ class ProductFactory extends Factory
     {
         return [
 
-            'product_name' => $this->faker->name(),
+            'name' => $this->faker->name(),
 
-            'price'        => $this->faker->numberBetween($min = 5, $max = 150),
-            'number_of'    => $this->faker->numberBetween($min = 9, $max = 999),
+            'price' => $this->faker->numberBetween($min = 5, $max = 150),
 
-            // 'sku'          => $this->faker->shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"),
-            // 'mpn'          => $this->faker->shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"),
+            'sku' => $this->faker->numerify("######"),
+            'mpn' => $this->faker->numerify("######"),
 
             // 'type'         => $this->faker->shuffle(array("type_1", "type_2", "type_3")),
             // 'quantity'     => $this->faker->shuffle(array('PCS', 'PCK', 'CTN'         )),

@@ -20,4 +20,9 @@ class Product extends Model
         "productName",
     ];
 
+    public function products()
+    {
+        return $this->belongsToMany(Order::class);
+    }
+
 }

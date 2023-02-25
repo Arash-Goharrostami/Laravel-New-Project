@@ -14,16 +14,13 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             // id
             $table->id("id");
-            // bigInteger
-            $table->bigInteger("price"    )->unsigned()->nullable();
-            $table->bigInteger("number_of")->unsigned()->nullable();
             // string
-            $table->string("sku"         , 50)->nullable();
-            $table->string("mpn"         , 50)->nullable();
-            $table->string("type"        , 50)->nullable();
-            $table->string("product_name", 70);
-            // enum
-            $table->enum('quantity', ['PCS', 'PCK', 'CTN']);
+            $table->string("sku"     )->nullable();
+            $table->string("mpn"     )->nullable();
+            $table->string("type"    )->nullable();
+            $table->string("name"    )->nullable();
+            $table->string("price"   )->nullable();
+            $table->string('quantity')->nullable();
             // timestamps
             $table->timestamps();
         });

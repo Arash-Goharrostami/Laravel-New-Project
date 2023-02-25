@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             // id
             $table->id("id");
-            // bigInteger
-            $table->bigInteger("order_number"   )->unsigned()->nullable();
-            $table->bigInteger("sum_of_price"   )->unsigned()->nullable();
-            $table->bigInteger("sum_of_products")->unsigned()->nullable();
-            // enum
-            $table->enum('status', ['step_1', 'step_2', 'step_3', 'step_4', 'step_5']);
+            // string
+            $table->string('sku'              )->nullable();
+            $table->string('name'             )->nullable();
+            $table->string('status'           )->nullable();
+            $table->string("quantity"         )->nullable();
+            $table->string("price_of_products")->nullable();
+            $table->string("sum_of_products"  )->nullable();
             // timestamps
             $table->timestamps();
         });

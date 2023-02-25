@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\Orderables;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -12,23 +15,39 @@ class OrderController extends Controller
      */
     public function index()
     {
-        return view("dashboard.order.index");
+        $orders = Order::take(10)->get();
+        return view("dashboard.order.index", compact('orders'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        return view("dashboard.order.create");
-    }
+        $products = $request->input("array");
+        $quantity = 0;
+        $sumPrice = 0;
+        $sumOfProducts = 0;
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        $orderId = Order::insertGetId([
+            "sku"               => $request->input("sku" ),
+            "name"              => $request->input("name"),
+            "status"            => "waiting",
+            // "quantity"          => $quantity,
+            // "sum_of_products"   => $sumOfProducts,
+            // "price_of_products" => $sumPrice,
+        ]);
+
+        foreach($products as $product) {
+            Orderables::create([
+                "order_id" => $orderId,
+                "product_id" => $product[0],
+                "quantity" => $product[1]
+            ]);
+        };
+
+
+        return $orderId;
     }
 
     /**
@@ -36,7 +55,9 @@ class OrderController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $order = Order::where("id", $id)->with("products")->get();
+
+        return $order;
     }
 
     /**

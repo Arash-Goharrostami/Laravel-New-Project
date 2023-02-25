@@ -18,5 +18,10 @@ use Illuminate\Support\Facades\Route;
 
 // Route::get('/', function () { return view('welcome')});
 
-Route::get("/dashboard/orders", [OrderController::class  , "index" ])->name("index" );
+Route::get("/orders", [OrderController::class  , "index" ])->name("index" );
+Route::post("/order/create" , [OrderController::class, "create"])->name("search");
+Route::get("/order/{id}" , [OrderController::class, "show"])->name("search");
+
 Route::post("/product/search" , [ProductController::class, "search"])->name("search");
+Route::get("/product/{id}" , [ProductController::class, "showProduct"])->name("search");
+Route::post("/product/create" , [ProductController::class, "create"])->name("search");
