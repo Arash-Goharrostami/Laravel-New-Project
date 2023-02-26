@@ -201,29 +201,28 @@
     // Javascript method's body can be found in assets/assets-for-demo/js/demo.js
     demo.initCharts();
 
-    $('#search-input-products').keyup( function() {
+    $('.search-input-products').keyup( function() {
         let value = this.value;
-        console.log(value)
         $.ajax({
             type:'POST',
             url:'/product/search',
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             data:{"value" : value},
             success:function(response){
-                $('#search-input-product-data-list').html(response);
-                console.log(response)
+                $('.search-input-product-data-list').html(response);
             }
         });
     });
 
-    $('#search-input-product-data-list').on('click', '.select-product-on-click', function() {
+    $('.search-input-product-data-list').on('click', '.select-product-on-click', function() {
         let id = $(this).attr("data-value")
         $.ajax({
             type:'GET',
             url:'/product/' + id,
             headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             success:function(response){
-                $('#wrap-selected-porducts').prepend(response);
+                $('.wrap-selected-porducts').prepend(response);
+                $('#product-wraper-content-update').prepend(response);
             }
         });
     });
@@ -255,7 +254,7 @@
                     url:'/product/' + id,
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     success:function(response){
-                        $('#wrap-selected-porducts').prepend(response);
+                        $('.wrap-selected-porducts').prepend(response);
                     }
                 });
                 $('#create-new-product-modal').modal('toggle');
@@ -271,8 +270,9 @@
 
         $('#show-selected-product-table tbody tr').each(function() {
             var id = $(this).find(".product-id-td").html();
+            var price = $(this).find(".price").html();
             var quantity = $(this).find(".quantity").val();
-            array.push([id, quantity]);
+            array.push([id, price, quantity]);
         });
 
         $.ajax({
@@ -285,43 +285,209 @@
                 "array" : array,
             },
             success:function(id){
-                $.ajax({
-                    type:'GET',
-                    url:'/order/' + id,
-                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    success:function(response){
-                        console.log(response)
-                        $('#order-wraper-content').prepend(wrapOrder(response));
-                    }
-                });
-                $('#create-new-order-modal').modal('toggle');
+                location.reload()
+                // $.ajax({
+                //     type:'GET',
+                //     url:'/order/' + id,
+                //     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                //     success:function(response){
+                //         $('#order-wraper-content').prepend(wrapOrder(response));
+                //     }
+                // });
+                // $('#create-new-order-modal').modal('toggle');
             }
         });
     })
 
     function wrapOrder(data) {
+        console.log(data[0])
         let value = data[0]
         let output = "";
         output += "<tr>";
         output += "<td class='text-center'>"+value.id+"</td>";
         output += "<td>"+value.name+"</td>";
         output += "<td>"+value.sku+"</td>";
-        output += "<td>2013</td>";
-        output += "<td class='text-right'>&euro; "+value.price+"</td>";
+        output += "<td>"+value.quantity+"</td>";
+        output += "<td>"+value.sum_of_products+"</td>";
+        output += "<td>&euro; "+value.price_of_products+"</td>";
         output += "<td class='td-actions text-right'>";
         output += "<button type='button' rel='tooltip' class='btn btn-info'>";
-        output += "<i class='material-icons'>person</i>";
+        output += "<i class='material-icons'>info</i>";
         output += "</button>";
         output += "<button type='button' rel='tooltip' class='btn btn-success'>";
         output += "<i class='material-icons'>edit</i>";
         output += "</button>";
         output += "<button type='button' rel='tooltip' class='btn btn-danger'>";
-        output += "<i class='material-icons'>close</i>";
+        output += "<i class='material-icons delete-order-button'>close</i>";
         output += "</button>";
         output += "</td>";
         output += "</tr>";
         return output;
     }
+
+
+    $(".wrap-selected-porducts").on("click", ".delete-product-button", function() {
+        $(this).closest("tr").remove();
+    });
+
+    $("#product-wraper-content-update").on("click", ".delete-product-button", function() {
+        $(this).closest("tr").remove();
+    });
+
+
+    $("#order-wraper-content").on("click", ".delete-order-button", function() {
+        let id =  $(this).attr("data-id")
+        $.ajax({
+            type:'DELETE',
+            url:'/order/' + id,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success:function(data) {
+                $(this).closest("tr").remove()
+            },
+        });
+    });
+
+    $("#order-wraper-content").on("click", ".update-order-button", function() {
+        let id =  $(this).attr("data-id")
+        let sku =  $(this).attr("data-sku")
+        let name =  $(this).attr("data-name")
+        $('#update-order-modal').modal('show');
+        $('#update-order-modal').attr("data-id", id)
+        $("#update-order-form :input[name='sku']").val(sku);
+        $("#update-order-form :input[name='name']").val(name)
+
+        $('#product-wraper-content-update').html("");
+        $.ajax({
+            type:'GET',
+            url:'/order/' + id,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success:function(response){
+                response[0].products.map(function (product) {
+                    $.ajax({
+                        type:'GET',
+                        url:'/product/update/' + product.product_id,
+                        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                        success:function(response){
+                            console.log(response)
+                            $('#product-wraper-content-update').append(wrapProduct(response, product.quantity));
+                        }
+                    });
+                })
+            }
+        });
+    });
+
+    function wrapProduct(data, quantity) {
+        let output = "";
+        output += "<tr>";
+        output += "<td class='text-center product-id-td'>"+ data.id +"</td>";
+        output += "<td>"+data.name+"</td>";
+        output += "<td>"+data.sku+"</td>";
+        output += "<td>"+data.mpn+"</td>";
+        output += "<td class='text-right'>&euro; <span class='price'>"+data.price+"</span></td>";
+        output += "<td class='text-right'><input value='"+quantity+"' class='quantity' type='number'/></td>";
+        output += "<td class='td-actions text-right'>";
+        output += "<button type='button' rel='tooltip' class='btn btn-danger delete-product-button'>";
+        output += "<i class='material-icons'>delete</i>";
+        output += "</button>";
+        output += "</td>";
+        output += "</tr>";
+        return output;
+    }
+
+    $("#update-order").on("click", function() {
+        let order_id = $('#update-order-modal').attr("data-id")
+        let name = $("#update-order-form :input[name='name']").val();
+        let sku = $("#update-order-form :input[name='sku']").val();
+        let array = []
+
+        $('#show-selected-product-table-update tbody tr').each(function() {
+            var id = $(this).find(".product-id-td").html();
+            var price = $(this).find(".price").html();
+            var quantity = $(this).find(".quantity").val();
+            array.push([id, price, quantity]);
+        });
+
+        $.ajax({
+            type:'PUT',
+            url:'/order/update/' + order_id,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            data:{
+                "id" : order_id,
+                "sku" : sku,
+                "name" : name,
+                "array" : array,
+            },
+            success:function(id){
+                location.reload();
+                // $.ajax({
+                //     type:'GET',
+                //     url:'/order/' + id,
+                //     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                //     success:function(response){
+                //         $('#order-wraper-content').prepend(wrapOrder(response));
+                //     }
+                // });
+                // $('#update-order-modal').modal('toggle');
+            }
+        });
+    })
+
+    $("#order-wraper-content").on("click", ".info-order-button", function() {
+        let id =  $(this).attr("data-id")
+        $('#info-order-modal').modal('show');
+        $('#info-modal-products-wrap').html("");
+        $.ajax({
+            type:'GET',
+            url:'/order/info/' + id,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success:function(response){
+                response.map(function(data) {
+                    $('#info-modal-products-wrap').prepend(wrapProductInfo(data));
+                })
+            }
+        });
+    });
+
+    function wrapProductInfo(data) {
+        let output = "";
+        output += "<tr class=" + checkQuantity(data.quantity, data.product.quantity) + ">";
+        output += "<td class='text-center product-id-td'>"+ data.product.id +"</td>";
+        output += "<td>"+data.product.name+"</td>";
+        output += "<td>"+data.product.sku+"</td>";
+        output += "<td>"+data.product.mpn+"</td>";
+        output += "<td>&euro; <span class='price'>"+data.product.price * data.quantity+"</span></td>";
+        output += "<td>"+data.quantity+"</td>";
+        output += "<td>"+data.product.quantity+"</td>";
+        output += "</tr>";
+        return output;
+    }
+
+    function checkQuantity(order, product) {
+        if (Number(order) <= Number(product)) {
+            return "table-success"
+        } else {
+            return "table-danger"
+        }
+    }
+
+    $(".delete-order-button").on("click", function() {
+        let id =  $(this).attr("data-id")
+        $('#delete-modal-butten').attr("data-id", id)
+        $("#delete-modal").modal("show")
+    })
+
+    $("#delete-modal-butten").on("click", function() {
+        let id =  $(this).attr("data-id")
+        $.ajax({
+            type:'DELETE',
+            url:'/order/' + id,
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success:function(){
+                location.reload();
+            }
+        });
+    })
 
   });
 </script>

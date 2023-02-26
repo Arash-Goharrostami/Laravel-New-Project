@@ -14,7 +14,7 @@ class ProductController extends Controller
         $value = $_POST['value'];
         $products = Product::where('sku', 'LIKE', '%' . $value . '%')->take(10)->get();
         foreach($products as $product) {
-            $html .= "<a class='dropdown-item select-product-on-click' data-value='". $product->id . "' data-default-selected='' href='#'> " . $product->name . "</a>";
+            $html .= "<a class='dropdown-item select-product-on-click' data-value='". $product->id . "' data-default-selected=''> " . $product->name . "</a>";
         }
         return $html;
     }
@@ -28,16 +28,21 @@ class ProductController extends Controller
                 <td>'.$product->name.'</td>
                 <td>'.$product->sku.'</td>
                 <td>'.$product->mpn.'</td>
-                <td class="text-right">&euro; '.$product->price.'</td>
+                <td class="text-right">&euro; <span class="price">'.$product->price.'</span></td>
                 <td class="text-right"><input value="1" class="quantity" type="number"/></td>
                 <td class="td-actions text-right">
-                    <button type="button" rel="tooltip" class="btn btn-danger">
+                    <button type="button" rel="tooltip" class="btn btn-danger delete-product-button">
                         <i class="material-icons">delete</i>
                     </button>
                 </td>
             </tr>
         ';
         return $html;
+    }
+
+    public function showProductUpdate($id){
+        $product = Product::findOrFail($id);
+        return $product;
     }
 
     public function create (Request $request) {
